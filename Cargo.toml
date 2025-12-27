@@ -1,0 +1,36 @@
+[package]
+name = "print-pdf-service"
+version = "0.1.0"
+edition = "2021"
+description = "出張旅費精算書PDF生成サービス"
+
+[dependencies]
+# PDF生成
+printpdf = "0.8"
+
+# 非同期
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+
+# tower Service
+tower = "0.4"
+
+# エラー
+thiserror = "1"
+
+# ログ
+tracing = "0.1"
+
+# 正規表現
+regex = "1"
+
+# シリアライズ
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[dev-dependencies]
+tracing-subscriber = "0.3"
+
+[[example]]
+name = "generate_test"
+path = "examples/generate_test.rs"
