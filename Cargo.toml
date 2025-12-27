@@ -34,3 +34,7 @@ tracing-subscriber = "0.3"
 [[example]]
 name = "generate_test"
 path = "examples/generate_test.rs"
+
+[[example]]
+name = "print_test"
+path = "examples/print_test.rs"

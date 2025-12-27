@@ -34,17 +34,44 @@ impl SumatraPrinter {
         }
 
         // 複数の場所でSumatraPDFを探す
-        let search_paths = [".", "C:\\"];
-        let candidates = [
-            "SumatraPDF-3.5.2-64.exe",
-            "SumatraPDF.exe",
+        let search_paths = [
+            ".",
+            "./bin",
+            "bin",
+            "C:\\",
+            "C:\\Program Files\\SumatraPDF",
+            "C:\\Program Files (x86)\\SumatraPDF",
         ];
 
-        for search_path in &search_paths {
+        // ユーザーのダウンロードフォルダも検索
+        let mut all_search_paths: Vec<String> = search_paths.iter().map(|s| s.to_string()).collect();
+
+        // 実行ファイルのディレクトリからの相対パスも検索
+        if let Ok(exe_path) = std::env::current_exe() {
+            if let Some(exe_dir) = exe_path.parent() {
+                all_search_paths.push(exe_dir.to_string_lossy().to_string());
+                all_search_paths.push(format!("{}\\bin", exe_dir.to_string_lossy()));
+            }
+        }
+        if let Ok(user_profile) = std::env::var("USERPROFILE") {
+            all_search_paths.push(format!("{}\\Downloads", user_profile));
+            all_search_paths.push(format!("{}\\Desktop", user_profile));
+            all_search_paths.push(format!("{}\\AppData\\Local\\SumatraPDF", user_profile));
+        }
+
+        let candidates = [
+            "SumatraPDF.exe",
+            "SumatraPDF-3.5.2-64.exe",
+            "SumatraPDF-3.5.2-32.exe",
+            "SumatraPDF-3.4.6-64.exe",
+            "SumatraPDF-3.4.6-32.exe",
+        ];
+
+        for search_path in &all_search_paths {
             for candidate in &candidates {
                 let full_path = Path::new(search_path).join(candidate);
-                if let Ok(abs_path) = std::fs::canonicalize(&full_path) {
-                    if abs_path.exists() {
+                if full_path.exists() {
+                    if let Ok(abs_path) = std::fs::canonicalize(&full_path) {
                         tracing::info!("SumatraPDF found: {:?}", abs_path);
                         self.sumatra_path = Some(abs_path.clone());
                         return Ok(abs_path);
